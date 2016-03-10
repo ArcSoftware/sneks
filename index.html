@@ -67,6 +67,7 @@
                 
                 return valid;
             }
+            
             function moveRect(rect, newRect) {
                 var valid = true;
                 
@@ -128,6 +129,7 @@
                 
                 return inSnake;
             }
+            
             var gameInt = setInterval(function () {
                 if (gameOver) {
                     endGame(gameInt);
@@ -149,7 +151,7 @@
                         }
                         
                         else {
-                            // if food exists at direction, add the food to the snake
+                            // if food exists at direction, remove it
                             if (snake[0][0] + direction[0]*blockSize == food[0] && 
                                 snake[0][1] + direction[1]*blockSize == food[1]) {
                                     console.log("ate some foodz");
