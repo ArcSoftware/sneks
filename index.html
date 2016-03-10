@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            canvas {
+                background-color: #888;
+                display: block;
+                margin: 0px auto;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <script type="text/javascript">
+            var canvas = document.getElementById("canvas");
+            var head = [Math.floor(canvas.width/2), Math.floor(canvas.height/2)];
+            var ctx = canvas.getContext('2d');
+            var blockSize = 25;
+            var direction = null;
+            var directions = {
+                LEFT: [-1, 0],
+                UP: [0, -1],
+                RIGHT: [1, 0],
+                DOWN: [0, 1]
+            };
+            
+            var snake = [head, 
+            [head[0], head[1]-blockSize],
+            [head[0], head[1]-(blockSize*2)]
+            ];
+        
+            function keyPress(e) {
+                if (e.keyCode === 37) {
+                    direction = directions.LEFT;
+                } else if (e.keyCode === 38) {
+                    direction = directions.UP;
+                } else if (e.keyCode === 39) {
+                    direction = directions.RIGHT;
+                } else if (e.keyCode === 40) {
+                    direction = directions.DOWN;
+                }
+                
+                console.log(direction);
+            }
+            
+            function moveRect(rect, newRect) {
+                if (newRect === undefined) {
+                    if (direction !== null) {
+                        rect[0] += direction[0]*blockSize;
+                        rect[1] += direction[1]*blockSize;
+                    }    
+                }
+                
+                else {
+                    rect[0] = newRect[0];
+                    rect[1] = newRect[1];
+                }
+            }
+            
+            function drawRect(ctx, rect) {
+                ctx.fillRect(rect[0], rect[1], blockSize, blockSize);
+            }
+            
+            setInterval(function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'white';
+                
+                for(var i = snake.length-1; i >= 0;i--) {
+                    // if this is head, move in current direction
+                    // if not head, move to previous square.
+                    if (direction !== null) {
+                        if (i === 0) {
+                            moveRect(snake[i]);
+                        } else {
+                            moveRect(snake[i], snake[i-1]);
+                        }
+                    }
+                    
+                    drawRect(ctx, snake[i]);
+                }
+            }, 100);
+            
+            window.addEventListener('keydown', keyPress);
+        </script>
+    </body>
+</html>
