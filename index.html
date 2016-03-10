@@ -134,6 +134,11 @@
                 }
                 
                 else {
+                    // if food doesn't exist, add it
+                    if (food == null) {
+                        placeFood();
+                    }
+                    
                     // if we have a direction
                     // make sure that direction is valid.
                     // if it's not, end the game.
@@ -143,17 +148,11 @@
                             return;
                         }
                         
-                        // if food doesn't exist, add it
-                        if (food == null) {
-                            placeFood();
-                        }
-                        
                         else {
                             // if food exists at direction, add the food to the snake
                             if (snake[0][0] + direction[0]*blockSize == food[0] && 
                                 snake[0][1] + direction[1]*blockSize == food[1]) {
                                     console.log("ate some foodz");
-                                    snake.unshift(food);
                                     food = null;
                                 }
                         }
@@ -162,6 +161,8 @@
                     // move is valid, move snake
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.fillStyle = 'white';
+
+                    var tail = [snake[snake.length-1][0], snake[snake.length-1][1]];
                     
                     for(var i = snake.length-1; i >= 0;i--) {
                         if (direction !== null) {
@@ -180,7 +181,11 @@
                     }
                     
                     if (food !== null) {
+                        ctx.fillStyle = '#4f4';
                         drawRect(ctx, food);
+                    } else {
+                        snake.push(tail);
+                        drawRect(ctx, tail);
                     }
                 }
             }, 100);
