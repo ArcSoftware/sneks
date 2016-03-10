@@ -12,6 +12,9 @@
                 color: red;
             }
             
+            body {
+                background-color: #333;
+            }
         </style>
     </head>
     <body>
@@ -19,6 +22,7 @@
         <h1 id="message"></h1>
         <script type="text/javascript">
             var gameOver = false;
+            var food = null;
             var canvas = document.getElementById("canvas");
             var head = [Math.floor(canvas.width/2), Math.floor(canvas.height/2)];
             var ctx = canvas.getContext('2d');
@@ -31,14 +35,7 @@
                 DOWN: [0, 1]
             };
             
-            var snake = [head, 
-            [head[0], head[1]-blockSize],
-            [head[0], head[1]-(blockSize*2)],
-            [head[0], head[1]-(blockSize*3)],
-            [head[0], head[1]-(blockSize*4)],
-            [head[0], head[1]-(blockSize*5)],
-            [head[0], head[1]-(blockSize*6)]
-            ];
+            var snake = [head];
         
             function keyPress(e) {
                 if (e.keyCode === 37) {
@@ -50,8 +47,6 @@
                 } else if (e.keyCode === 40) {
                     direction = directions.DOWN;
                 }
-                
-                console.log(direction);
             }
             
             function checkMove(rect, x, y) {
@@ -67,10 +62,8 @@
                     valid = false;
                  
                 // can't be any existing element in snake
-                for(var i = 0;i < snake.length;i++) {
-                    if (snake[i][0] == pos[0] && snake[i][1] == pos[1])
-                        valid = false;
-                }
+                if (squareInSnake(pos))
+                    valid = false;
                 
                 return valid;
             }
@@ -99,9 +92,42 @@
             function endGame(gameInt) {
                 clearInterval(gameInt);
                 var responseText = document.getElementById('message');
-                responseText.innerText = "Game Over!";
+                responseText.innerText = "Game Over! Snake Size: " + snake.length;
             }
             
+            function placeFood() {
+                // randomly place food in the canvas wherever the snake
+                // doesn't exist
+                var x = [];
+                var y = [];
+                
+                for (var i = 0; i < canvas.width; i += blockSize) {
+                    x.push(i)
+                }
+                
+                for (var i = 0; i < canvas.height; i += blockSize) {
+                    y.push(i);
+                }
+                do {
+                    food = [
+                        x[Math.floor(Math.random()*x.length)],
+                        y[Math.floor(Math.random()*y.length)]
+                    ];
+                } while (squareInSnake(food))
+            }
+            
+            function squareInSnake(square) {
+                var inSnake = false;
+                
+                for (var i = 0;i < snake.length;i++) {
+                    if (snake[i][0] == square[0] && snake[i][1] == square[1]) {
+                        inSnake = true;
+                        break;
+                    }
+                }
+                
+                return inSnake;
+            }
             var gameInt = setInterval(function () {
                 if (gameOver) {
                     endGame(gameInt);
@@ -116,9 +142,22 @@
                             gameOver = true;
                             return;
                         }
+                        
+                        // if food doesn't exist, add it
+                        if (food == null) {
+                            placeFood();
+                        }
+                        
+                        else {
+                            // if food exists at direction, add the food to the snake
+                            if (snake[0][0] + direction[0]*blockSize == food[0] && 
+                                snake[0][1] + direction[1]*blockSize == food[1]) {
+                                    console.log("ate some foodz");
+                                    snake.unshift(food);
+                                    food = null;
+                                }
+                        }
                     }
-                    
-                    // randomly place food
                     
                     // move is valid, move snake
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -138,6 +177,10 @@
                         }
                         
                         drawRect(ctx, snake[i]);
+                    }
+                    
+                    if (food !== null) {
+                        drawRect(ctx, food);
                     }
                 }
             }, 100);
